@@ -1,0 +1,55 @@
+import stripe
+
+# Thay thế bằng khóa bí mật của bạn từ Stripe Dashboard
+stripe.api_key = 'your_secret_key_here'
+
+def create_payment_intent(amount, currency, payment_method_type):
+    try:
+        # Tạo PaymentIntent với Stripe
+        payment_intent = stripe.PaymentIntent.create(
+            amount=amount,  # Số tiền tính bằng cent
+            currency=currency,
+            payment_method_types=[payment_method_type],
+        )
+        return payment_intent
+    except stripe.error.CardError as e:
+        # Xử lý lỗi thẻ
+        print(f"Card error: {e.user_message}")
+        return None
+    except stripe.error.RateLimitError as e:
+        # Xử lý lỗi quá tải
+        print("Rate limit error")
+        return None
+    except stripe.error.InvalidRequestError as e:
+        # Xử lý lỗi yêu cầu không hợp lệ
+        print("Invalid request error")
+        return None
+    except stripe.error.AuthenticationError as e:
+        # Xử lý lỗi xác thực
+        print("Authentication error")
+        return None
+    except stripe.error.APIConnectionError as e:
+        # Xử lý lỗi kết nối API
+        print("API connection error")
+        return None
+    except stripe.error.StripeError as e:
+        # Xử lý các lỗi khác
+        print("Stripe error")
+        return None
+    except Exception as e:
+        # Xử lý các lỗi không mong muốn khác
+        print(f"An error occurred: {e}")
+        return None
+
+# Ví dụ kiểm tra giao dịch với thẻ Visa
+payment_intent = create_payment_intent(
+    amount=5000,  # Số tiền: $50.00
+    currency='usd',
+    payment_method_type='card'  # Sử dụng 'card' cho cả Visa và MasterCard
+)
+
+if payment_intent:
+    print("Payment Intent created successfully!")
+    print(payment_intent)
+else:
+    print("Failed to create Payment Intent.")
